@@ -15,26 +15,25 @@ UserInfoState:
 @bot.message_handler(commands=['lowprice'])
 def lowprice(message: Message) -> None:
     bot.set_state(message.from_user.id, UserInfoState.user_country, message.chat.id)
-    bot.send_message(message.from_user.id, f'Введите название страны:')
+    bot.send_message(message.from_user.id, f'Введи название страны:')
 
-
-@bot.message_handler(stat=UserInfoState.user_country)
+@bot.message_handler(state=UserInfoState.user_country)
 def get_country(message: Message) -> None:
-    bot.send_message(message.from_user.id, 'Теперь введите название города:')
+    bot.send_message(message.from_user.id, 'Теперь введи название города:')
     bot.set_state(message.from_user.id, UserInfoState.user_city, message.chat.id)
 
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
         data['user_country'] = message.text
 
-@bot.message_handler(stat=UserInfoState.user_city)
+@bot.message_handler(state=UserInfoState.user_city)
 def get_city(message: Message) -> None:
-    bot.send_message(message.from_user.id, 'Теперь введите кол-во отелей для показа:')
+    bot.send_message(message.from_user.id, 'Теперь введи кол-во отелей для показа:')
     bot.set_state(message.from_user.id, UserInfoState.user_hotel_num, message.chat.id)
 
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
         data['user_city'] = message.text
 
-@bot.message_handler(stat=UserInfoState.user_hotel_num)
+@bot.message_handler(state=UserInfoState.user_hotel_num)
 def get_hotel_num(message: Message) -> None:
     if message.text.isdigit():
         bot.send_message(message.from_user.id,
@@ -47,12 +46,20 @@ def get_hotel_num(message: Message) -> None:
     else:
         bot.send_message(message.from_user.id, 'Неверный ввод кол-ва отелей!')
 
-@bot.message_handler(stat=UserInfoState.user_foto)
+@bot.message_handler(content_types=['text', 'hotel_foto_yn'], state=UserInfoState.user_foto)
 def get_foto(message: Message) -> None:
     # if message.content_type == 'hotel_foto_yn':
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
         data['user_foto'] = message.text
-        bot.send_message(message.from_user.id, 'Данные сохранены!')
-        print(data)
+        bot.send_message(message.from_user.id, '<b>Данные сохранены!</b>', parse_mode='html')
+        text = 'Страна: <b>{}</b>\nгород: <b>{}</b>\nКол-во отелей для показа: <b>{}</b>\nФото: <b>{}</b>'.format(
+            data['user_country'],
+            data['user_city'],
+            data['user_hotel_num'],
+            data['user_foto']
+        )
+        bot.send_message(message.from_user.id, text, parse_mode='html')
+    bot.delete_state(message.from_user.id, message.chat.id)
+
     # else:
-    #     bot.send_message(message.from_user.id, 'Ошибка!')
+    #     bot.send_message(message.from_user.id, 'Ошибка ввода!')
