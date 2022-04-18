@@ -2,6 +2,7 @@ from keyboards.reply.hotel_foto_yn import request_hotel_foto_yn
 from loader import bot
 from states.user_info import UserInfoState
 from telebot.types import Message
+from database.sqlite_db_loader import db_loader
 
 '''
 UserInfoState:
@@ -59,6 +60,7 @@ def get_foto(message: Message) -> None:
             data['user_foto']
         )
         bot.send_message(message.from_user.id, text, parse_mode='html')
+        db_loader(message.from_user.id, data['user_country'], data['user_city'], data['user_hotel_num'], data['user_foto'])
     bot.delete_state(message.from_user.id, message.chat.id)
 
     # else:
