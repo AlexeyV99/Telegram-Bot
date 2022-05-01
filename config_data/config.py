@@ -12,12 +12,10 @@ DEFAULT_COMMANDS = (
     ('start', "Запустить бота"),
     ('help', "Вывести справку"),
     ('history', 'История запросов'),
-    ('lowprice', 'Топ самых дешевых отелей')
+    ('lowprice', 'Топ самых дешевых отелей'),
+    ('user_info', 'Данные пользователя')
 )
 
+DB_NAME = 'bot_base.db'
 HISTORY_NUM = 3
 
-# 1. Country
-# 2. City
-# 3. Hotel number
-# 4. Hotel foto (yes/no)

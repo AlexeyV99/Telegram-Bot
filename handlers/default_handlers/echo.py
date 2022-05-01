@@ -1,9 +1,11 @@
 from telebot.types import Message
 from loader import bot
+from handlers.default_handlers.help import bot_help
 
 
-# Эхо хендлер, куда летят текстовые сообщения без указанного состояния
 @bot.message_handler(state=None)
 def bot_echo(message: Message):
-    bot.reply_to(message, "Эхо без состояния или фильтра.\nСообщение: "
-                          f"<i>{message.text}</i>", parse_mode='html')
+    # Эхо хендлер, куда летят текстовые сообщения без указанного состояния
+    bot.reply_to(message.from_user.id, f"Не плохо сказано, дружище.")
+    bot_help(message)
+
