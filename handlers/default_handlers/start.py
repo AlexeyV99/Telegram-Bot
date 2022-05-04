@@ -8,3 +8,4 @@ from handlers.default_handlers.help import bot_help
 def bot_start(message: Message):
     bot.reply_to(message, f"Привет, {message.from_user.full_name}!")
     bot_help(message)
+    

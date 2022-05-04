@@ -98,10 +98,10 @@ def user_add(cur, message: Message) -> None:
     cur.execute('SELECT count() as count FROM users WHERE user_id=?', (message.from_user.id, ))
     num = cur.fetchall()
     if num[0][0]:
-        logger.info(f'Пользователь {message.from_user.id} - {message.from_user.full_name} уже существует в таблице users')
+        logger.info(f'Пользователь {message.from_user.full_name}({message.from_user.id}) уже существует в таблице users')
     else:
         cur.execute('INSERT INTO users VALUES (?, ?, "user", "ru")', (message.from_user.id, message.from_user.full_name))
-        logger.info(f'Пользователь {message.from_user.id} - {message.from_user.full_name} записан в таблицу users')
+        logger.info(f'Пользователь {message.from_user.full_name}({message.from_user.id}) записан в таблицу users')
 
 
 @users_tbl
