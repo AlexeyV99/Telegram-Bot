@@ -1,6 +1,9 @@
 import requests
 from pprint import pprint
 
+
+
+
 url = "https://hotels4.p.rapidapi.com/properties/list"
 
 querystring = {"destinationId": "1506246",
