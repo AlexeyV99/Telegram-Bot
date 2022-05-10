@@ -1,5 +1,6 @@
 from loguru import logger
 from keyboards.reply.hotel_foto_yn import request_hotel_foto_yn
+from keyboards.inline.inline_kb import inline_keyboard_yn
 from loader import bot
 from states.user_info import UserInfoState
 from telebot.types import Message
@@ -26,7 +27,7 @@ def get_hotel_num(message: Message) -> None:
     if message.text.isdigit() and 0 < int(message.text) <= 10:
         bot.send_message(message.from_user.id,
                          'Теперь скажи, нужны ли фото?',
-                         reply_markup=request_hotel_foto_yn())
+                         reply_markup=inline_keyboard_yn())
         bot.set_state(message.from_user.id, UserInfoState.user_foto, message.chat.id)
 
         with bot.retrieve_data(message.from_user.id, message.chat.id) as data:

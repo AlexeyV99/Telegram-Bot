@@ -21,16 +21,22 @@ headers = {
     "X-RapidAPI-Key": "04fed69a5cmshaa8a1712aefedb3p16964fjsn6db9f26ecde6"
 }
 
-try:
-    r = requests.request("GET", url, headers=headers, params=querystring)
-    data = r.json()
-    print(data)
-    # if data['moresuggestions'] == 0:
+#try:
+r = requests.request("GET", url, headers=headers, params=querystring)
+data = r.json()
+pprint(data)
+#with open('json.txt', 'w', encoding='utf-8') as f:
+#    f.write(str(data))
+    # if data['moresuggestions'] == 0::
     #     print('Такого города не существует')
     # else:
     #     for i_data in data['suggestions']:
     #         if i_data['group'] == 'CITY_GROUP':
     #             for i_city in i_data['entities']:
     #                 print(i_city['caption'], i_city['destinationId'])
-except Exception as e:
-    print(e)
+#except Exception as e:
+#    print(e)
+
+
+
+
