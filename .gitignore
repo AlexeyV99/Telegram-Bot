@@ -130,6 +130,6 @@ dmypy.json
 .idea/
 .idea/*
 /.env
-_old/
+_old/*
 /database/*.db
 /database/hotel_base.db
