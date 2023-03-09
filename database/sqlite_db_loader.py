@@ -77,7 +77,9 @@ def users_tbl(func):
 
 @requests_tbl
 def request_add(cur, user_id: int):
-    '''Записывает данные в таблицу requests'''
+    '''
+    Записывает данные в таблицу requests
+    '''
     try:
         cur.execute('INSERT INTO requests VALUES (?, ?, ?, ?)', (user_id, 'lowprice', time.time(), None))
         logger.info(f'Данные записаны в таблицу requests {cur.lastrowid}')
@@ -106,8 +108,11 @@ def user_add(cur, message: Message) -> None:
 
 @users_tbl
 def user_info(cur, message: Message) -> list:
+    '''
+    Выводит данные о пользователе из таблицы users
+    '''
+
     user_add(message)
-    '''Выводит данные о пользователе из таблицы users'''
     cur.execute('SELECT * FROM users WHERE user_id=?', (message.from_user.id, ))
     logger.info(f'Запрос данных из таблицы user для пользователя {message.from_user.id} - {message.from_user.full_name}')
     return cur.fetchone()
