@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 .idea/
 .idea/*
-.env
+/.env
 _old/
 /database/*.db
 /database/hotel_base.db
