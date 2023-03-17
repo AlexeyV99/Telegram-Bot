@@ -1,2 +1,2 @@
-from . import reply
-from . import inline
+from keyboards import reply_kb
+# from keyboards import inline_kb
