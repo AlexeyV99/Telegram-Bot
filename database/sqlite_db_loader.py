@@ -4,7 +4,13 @@ import time
 from config_data.config import HISTORY_NUM
 from config_data.config import DB_NAME
 from loguru import logger
-from telebot.types import Message
+from aiogram.types import Message
+
+
+def time_formate(t: float):
+    named_tuple = time.localtime(t)  # получить struct_time
+    time_string = time.strftime("%d.%m.%Y %H:%M", named_tuple)
+    return time_string
 
 
 def requests_tbl(func):
@@ -76,12 +82,13 @@ def users_tbl(func):
 
 
 @requests_tbl
-def request_add(cur, user_id: int):
+def request_add(cur, message: Message, command, rezult):
     '''
     Записывает данные в таблицу requests
     '''
     try:
-        cur.execute('INSERT INTO requests VALUES (?, ?, ?, ?)', (user_id, 'lowprice', time.time(), None))
+        cur.execute('INSERT INTO requests VALUES (?, ?, ?, ?)', (message.from_user.id, command,
+                                                                 time_formate(time.time()), str(rezult)))
         logger.info(f'Данные записаны в таблицу requests {cur.lastrowid}')
     except Exception as e:
         logger.error('Ошибка записи в таблицу requests')
