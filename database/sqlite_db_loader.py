@@ -13,6 +13,12 @@ def time_formate(t: float):
     return time_string
 
 
+def time_formate(t: float):
+    named_tuple = time.localtime(t)  # получить struct_time
+    time_string = time.strftime("%d.%m.%Y %H:%M", named_tuple)
+    return time_string
+
+
 def requests_tbl(func):
     '''
     Декоратор, который позволяет работать с таблицей requests
