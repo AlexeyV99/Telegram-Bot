@@ -23,7 +23,7 @@ def s_city(city: str):
             print('Нет такого города!')
             return False
 
-        result = {i_city["regionNames"]["shortName"]: i_city["essId"]["sourceId"] for i_city in data['sr']}
+        result = {i_city["essId"]["sourceId"]: i_city["regionNames"]["displayName"] for i_city in data['sr']}
         return result
     else:
         print('Нет соединения!')

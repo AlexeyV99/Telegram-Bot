@@ -5,6 +5,7 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram import Dispatcher
 from loader import dp, bot
 from database.sqlite_db_loader import user_info
+from keyboards.inline_kb import inline_keyboard_help
 
 
 # def time_formate(t: float):
@@ -14,6 +15,7 @@ from database.sqlite_db_loader import user_info
 
 
 # Ответ на команду history
+@dp.callback_query_handler(text='/history')
 async def history(message: Message) -> None:
     logger.info(f'Пользователь {message.from_user.full_name}({message.from_user.id}) выполнил команду "history"')
     user_history_list = user_history(message.from_user.id)
@@ -21,16 +23,17 @@ async def history(message: Message) -> None:
         text = [f'{u_time}  {command}  {hotels}' for command, u_time, hotels in user_history_list]
         await bot.send_message(message.from_user.id,
                          f'<b><u>Твоя история запросов, {message.from_user.full_name}:</u></b>\n'+'\n'.join(text),
-                         parse_mode='html', reply_markup=ReplyKeyboardRemove())
+                         parse_mode='html', reply_markup=inline_keyboard_help())
         logger.info(f"Пользователь {message.from_user.full_name}({message.from_user.id}) запросил свою историю поисков")
     else:
         await bot.send_message(message.from_user.id,
                          f'<b><u>{message.from_user.full_name}, твоя история запросов пуста!</u></b>',
                                parse_mode='html',
-                               reply_markup=ReplyKeyboardRemove())
+                               reply_markup=inline_keyboard_help())
 
 
 # Ответ на команду user_info
+@dp.callback_query_handler(text='/user_info')
 async def user_info_handler(message: Message) -> None:
     logger.info(f'Пользователь {message.from_user.full_name}({message.from_user.id}) запросил информацию о себе')
     info = user_info(message)
@@ -40,7 +43,7 @@ async def user_info_handler(message: Message) -> None:
         info[2],
         info[3]
     )
-    await bot.send_message(message.from_user.id, text, parse_mode='html', reply_markup=ReplyKeyboardRemove())
+    await bot.send_message(message.from_user.id, text, parse_mode='html', reply_markup=inline_keyboard_help())
 
 
 def register_user_handlers(dp: Dispatcher):

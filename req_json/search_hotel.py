@@ -17,14 +17,14 @@ def hotel_detale(hotel_id: str, foto_num: int):
         "X-RapidAPI-Key": config.RAPID_API_KEY,
         "X-RapidAPI-Host": "hotels4.p.rapidapi.com"
     }
-    response = requests.request("POST", url, json=payload, headers=headers)
+    response = requests.request("POST", url, json=payload, headers=headers, timeout=10)
     data = json.loads(response.text)
     address = data["data"]["propertyInfo"]['summary']['location']['address']['addressLine']
     hotel_foto = [data["data"]["propertyInfo"]['propertyGallery']['images'][i]['image']['url'] for i in range(foto_num)]
     return [address, hotel_foto]
 
 
-def s_hotel(city_id: str, hotel_num: int = 1, foto_num: int = 1):
+def s_hotel(city_id: str):
     url = "https://hotels4.p.rapidapi.com/properties/v2/list"
     payload = {
         "currency": "USD",
@@ -61,22 +61,26 @@ def s_hotel(city_id: str, hotel_num: int = 1, foto_num: int = 1):
         "X-RapidAPI-Key": config.RAPID_API_KEY,
         "X-RapidAPI-Host": "hotels4.p.rapidapi.com"
     }
-    response = requests.request("POST", url, json=payload, headers=headers)
+    response = requests.request("POST", url, json=payload, headers=headers, timeout=10)
     if response.status_code == 200:
         data = json.loads(response.text)
-        hotels_list = data["data"]["propertySearch"]['properties']
-        result = {}
-        for i in range(hotel_num):
-            i_hotel = hotels_list[i]
-            address, hotel_foto = hotel_detale(i_hotel["id"], foto_num)
-            result[i_hotel["name"]] = {
-                'id': i_hotel["id"],
-                'price': i_hotel['price']['lead']['amount'],
-                'address': address,
-                'hotel_foto': hotel_foto,
-                'link': f"https://www.hotels.com/ho{i_hotel['id']}"
-            }
-        return result
+        if not data['data']:
+            hotels_list = data["data"]["propertySearch"]['properties']
+            result = {}
+            for i_hotel in hotels_list:
+                # i_hotel = hotels_list[i_hotel]
+                # address, hotel_foto = hotel_detale(i_hotel["id"])
+                result[i_hotel["id"]] = {
+                    'name': i_hotel["name"],
+                    # 'price': i_hotel['price']['options'][0]['strikeOut']['amount'],
+                    # 'f_price': i_hotel['price']['options'][0]['strikeOut']['formatted'],
+                    # 'address': address,
+                    # 'hotel_foto': hotel_foto,
+                    'link': f"https://www.hotels.com/h{i_hotel['id']}.Hotel-Information"
+                }
+            return result
+        else:
+            return None
     else:
         print('Нет соединения!')
-        return False
+        return None

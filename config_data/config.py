@@ -12,7 +12,7 @@ BOT_TOKEN: str = os.getenv('BOT_TOKEN')
 RAPID_API_KEY: str = os.getenv('RAPID_API_KEY')
 DEFAULT_COMMANDS: tuple = (
     ('start', "Запустить бота"),
-    ('help', "Вывести справку"),
+    ('help', "Команды бота"),
     ('lowprice', 'Топ самых дешевых отелей'),
     ('history', 'История запросов'),
     ('user_info', 'Данные пользователя')
