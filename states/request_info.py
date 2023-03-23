@@ -6,3 +6,5 @@ class FSMLowprice(StatesGroup):
     city = State()
     hotel_num = State()
     foto = State()
+
+

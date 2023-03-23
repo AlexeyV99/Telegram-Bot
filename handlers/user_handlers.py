@@ -1,51 +1,78 @@
-import time
-from database.sqlite_db_loader import user_history
+from loader import bot
 from loguru import logger
-from aiogram.types import Message, ReplyKeyboardRemove
-from aiogram import Dispatcher
-from loader import dp, bot
-from database.sqlite_db_loader import user_info
-from keyboards.inline_kb import inline_keyboard_help
+from database.sqlite_db_loader import user_history, user_info
+from aiogram import Dispatcher, types
+from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters import Text
+from keyboards.inline_kb import inline_keyboard_help, inline_keyboard_history
+# from states.request_info import FSMHistory                     # импортируем состояние запроса
+from handlers.lowprice import show_hotel_info
 
 
-# def time_formate(t: float):
-#     named_tuple = time.localtime(t)  # получить struct_time
-#     time_string = time.strftime("%d.%m.%Y %H:%M", named_tuple)
-#     return time_string
+async def show_hotel(callback: CallbackQuery) -> None:
+    await callback.answer()
+    i_req = callback.data.split('_')
+    """
+    i_req[0] = 'hist_'
+    i_req[1] = history request (1, 2, ...)
+    i_req[2] = user_id
+    """
+    hotel_history_dict = user_history(i_req[2])[int(i_req[1])]
+    for i_hotel in hotel_history_dict['hotels'].values():
+        await show_hotel_info(int(i_req[2]), i_hotel)
 
 
-# Ответ на команду history
-@dp.callback_query_handler(text='/history')
 async def history(message: Message) -> None:
+    """
+    Ответ на команду history
+    :param message:
+    :return:
+    """
     logger.info(f'Пользователь {message.from_user.full_name}({message.from_user.id}) выполнил команду "history"')
     user_history_list = user_history(message.from_user.id)
     if user_history_list:
-        text = [f'{u_time}  {command}  {hotels}' for command, u_time, hotels in user_history_list]
         await bot.send_message(message.from_user.id,
-                         f'<b><u>Твоя история запросов, {message.from_user.full_name}:</u></b>\n'+'\n'.join(text),
-                         parse_mode='html', reply_markup=inline_keyboard_help())
-        logger.info(f"Пользователь {message.from_user.full_name}({message.from_user.id}) запросил свою историю поисков")
+                               f'Твоя история запросов, {message.from_user.full_name}:',
+                               reply_markup=types.ReplyKeyboardRemove())
+        for i_code, i_value in user_history_list.items():
+            text = f'Дата и время запроса: {i_value["time"]}\n' \
+                   f'Тип запроса: {i_value["request"]}\n' \
+                   f'Город: {i_value["city"]}\n' \
+                   f'Отелей найдено: {i_value["hotel_num"]} '
+            i_kb = InlineKeyboardMarkup().add(InlineKeyboardButton(text='Просмотреть',
+                                                                   callback_data='hist_' + str(i_code) + '_' +
+                                                                                 str(message.from_user.id)))
+            await bot.send_message(message.from_user.id, text, reply_markup=i_kb)
     else:
         await bot.send_message(message.from_user.id,
-                         f'<b><u>{message.from_user.full_name}, твоя история запросов пуста!</u></b>',
-                               parse_mode='html',
+                         f'{message.from_user.full_name}, твоя история запросов пуста!',
                                reply_markup=inline_keyboard_help())
 
 
-# Ответ на команду user_info
-@dp.callback_query_handler(text='/user_info')
 async def user_info_handler(message: Message) -> None:
+    """
+    Ответ на команду user_info
+    :param message:
+    :return:
+    """
     logger.info(f'Пользователь {message.from_user.full_name}({message.from_user.id}) запросил информацию о себе')
     info = user_info(message)
     text = '== ВАШИ ДАННЫЕ ==\nId пользователя: {0}\nИмя пользователя: {1}\nПрава: {2}\nЯзык: {3}'.format(
-        info[0],
-        info[1],
-        info[2],
-        info[3]
+        info[0], info[1], info[2], info[3]
     )
     await bot.send_message(message.from_user.id, text, parse_mode='html', reply_markup=inline_keyboard_help())
 
 
-def register_user_handlers(dp: Dispatcher):
-    dp.register_message_handler(user_info_handler, commands=['user_info'])
-    dp.register_message_handler(history, commands=['history'])
+def register_user_handlers(disp: Dispatcher) -> None:
+    """
+    Резистрирует message_handler и callback_query_handler для функций
+    :param disp:
+    :return:
+    """
+    disp.register_message_handler(user_info_handler, commands=['user_info'])
+    disp.register_callback_query_handler(user_info_handler, text=['/user_info'])
+    disp.register_message_handler(history, commands=['history'])
+    disp.register_callback_query_handler(history, text=['/history'])
+    disp.register_callback_query_handler(show_hotel, Text(startswith='hist_'))
+

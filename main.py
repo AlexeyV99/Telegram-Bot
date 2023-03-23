@@ -17,7 +17,7 @@ def main() -> None:
     lowprice.register_lowprice_handlers(dp)
     default_handlers.register_default_handlers(dp)
 
-    executor.start_polling(dp, skip_updates=False, on_startup=setup_bot_commands)
+    executor.start_polling(dp, skip_updates=True, on_startup=setup_bot_commands)
 
 
 if __name__ == '__main__':

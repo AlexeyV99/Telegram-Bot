@@ -29,3 +29,7 @@ kb_3_1 = KeyboardButton('1')
 kb_3_2 = KeyboardButton('3')
 kb_3_3 = KeyboardButton('5')
 kb_foto_num.row(kb_3_1, kb_3_2, kb_3_3, kb_cancel)
+
+
+# клавистура отмены
+kb_reply_cancel = ReplyKeyboardMarkup(resize_keyboard=True).add(kb_cancel)

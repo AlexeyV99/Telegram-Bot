@@ -13,12 +13,6 @@ def time_formate(t: float):
     return time_string
 
 
-def time_formate(t: float):
-    named_tuple = time.localtime(t)  # получить struct_time
-    time_string = time.strftime("%d.%m.%Y %H:%M", named_tuple)
-    return time_string
-
-
 def requests_tbl(func):
     '''
     Декоратор, который позволяет работать с таблицей requests
@@ -102,9 +96,20 @@ def request_add(cur, message: Message, command, rezult):
 
 @requests_tbl
 def user_history(cur, user_id):
-    cur.execute('SELECT command, time, hotels FROM requests WHERE id LIKE ? ORDER BY _rowid_ DESC', (user_id,))
+    cur.execute('SELECT _rowid_, command, time, hotels FROM requests WHERE id LIKE ? ORDER BY _rowid_ DESC', (user_id,))
     selected_history = cur.fetchmany(HISTORY_NUM)
-    return selected_history
+    result = {}
+    for i_value in selected_history:
+        h_req = eval(i_value[3])
+        result[i_value[0]] = {
+            'request': i_value[1],
+            'time': i_value[2],
+            'city_id': h_req['city_id'],
+            'city': h_req['city'],
+            'hotel_num': h_req['hotel_num'],
+            'hotels': h_req['hotels']
+        }
+    return result
 
 
 @users_tbl
