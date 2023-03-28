@@ -9,9 +9,9 @@ from keyboards.inline_kb import inline_keyboard_help, inline_keyboard_default
 from handlers.func import delete_message
 
 
-async def bot_start(message: Union[Message, CallbackQuery]):
+async def bot_start(message: Union[Message, CallbackQuery]) -> None:
     """
-    Ответ на команду start
+    Ответ на команду /start
     :param message:
     :return:
     """
@@ -24,9 +24,9 @@ async def bot_start(message: Union[Message, CallbackQuery]):
                            reply_markup=inline_keyboard_help())
 
 
-async def bot_help(message: Union[Message, CallbackQuery]):
+async def bot_help(message: Union[Message, CallbackQuery]) -> None:
     """
-    Ответ на команду help
+    Ответ на команду /help
     :param message:
     :return:
     """
@@ -44,7 +44,7 @@ async def bot_echo(message: Message) -> None:
     """
     logger.info(f'Пользователь {message.from_user.full_name}({message.from_user.id}) написал {message.text}!')
     answer = FUNNY_ECHO_ANSWERS[random.randint(1, len(FUNNY_ECHO_ANSWERS))]
-    await bot.send_message(message.from_user.id, answer, reply_markup=inline_keyboard_help())
+    await message.reply(answer, reply_markup=inline_keyboard_help())
 
 
 def register_default_handlers(disp: Dispatcher) -> None:
