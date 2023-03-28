@@ -103,7 +103,7 @@ celerybeat.pid
 
 # Environments
 .venv
-*/.env
+#*/.env
 env/
 venv/
 ENV/
@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 .idea/
 .idea/*
-.env
+#.env
 /database/*.db
 /database/hotel_base.db
 /logs/

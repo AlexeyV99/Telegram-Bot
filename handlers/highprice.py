@@ -2,7 +2,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
-from states.request_info import FSMLowprice
+from states.request_info import FSMHighprice
 from loguru import logger
 from loader import bot
 from typing import Union
@@ -20,9 +20,9 @@ async def start_fsm(message: Union[Message, CallbackQuery]) -> None:
     :return:
     """
     await delete_message(message)
-    logger.info(f'Пользователь {message.from_user.full_name}({message.from_user.id}) выполнил команду "lowprice"')
+    logger.info(f'Пользователь {message.from_user.full_name}({message.from_user.id}) выполнил команду "highprice"')
     await bot.send_message(message.from_user.id, 'Введите название города', reply_markup=kb_reply_cancel)
-    await FSMLowprice.step_1.set()
+    await FSMHighprice.step_1.set()
 
 
 async def step_city(message: types.Message, state: FSMContext) -> None:
@@ -32,14 +32,15 @@ async def step_city(message: types.Message, state: FSMContext) -> None:
     :param state:
     :return:
     """
-    logger.info(f'lowprice Пользователь {message.from_user.full_name}({message.from_user.id}) в функции load_dif_city!')
+    logger.info(f'highprice Пользователь {message.from_user.full_name}({message.from_user.id}) '
+                f'в функции load_dif_city!')
     rezult = search_city.search_city(message.text)
     if rezult:
         async with state.proxy() as data:
             data['city_dict'] = rezult
 
         await bot.send_message(message.from_user.id, 'Уточните метоположение', reply_markup=kb_cities(rezult))
-        await FSMLowprice.next()
+        await FSMHighprice.next()
     else:
         await bot.send_message(message.from_user.id, 'Такого города не обнаружено или произошла ошибка соединения, '
                                                      'повторите ввод или наберите "отмена"',
@@ -65,7 +66,7 @@ async def step_load_city(callback: types.CallbackQuery, state: FSMContext) -> No
     :param state:
     :return:
     """
-    logger.info(f'lowprice Пользователь в функции load_city!')
+    logger.info(f'highprice Пользователь в функции load_city!')
     await delete_message(callback)
     if callback.data == 'cancel':
         await cancel_handler(callback.message, state)
@@ -73,7 +74,7 @@ async def step_load_city(callback: types.CallbackQuery, state: FSMContext) -> No
         async with state.proxy() as data:
             data['city'] = callback.data
         await callback.message.answer('Введите количество отелей (от 1 до 10)', reply_markup=kb_foto_num)
-        await FSMLowprice.next()
+        await FSMHighprice.next()
 
 
 async def step_hotel_num(message: types.Message, state: FSMContext) -> None:
@@ -83,14 +84,14 @@ async def step_hotel_num(message: types.Message, state: FSMContext) -> None:
     :param state:
     :return:
     """
-    logger.info(f'lowprice Пользователь {message.from_user.full_name}({message.from_user.id}) '
+    logger.info(f'highprice Пользователь {message.from_user.full_name}({message.from_user.id}) '
                 f'в функции load_hotel_num!')
 
     if message.text.isdigit() and 1 <= int(message.text) <= 10:
         async with state.proxy() as data:
             data['hotel_num'] = int(message.text)
         await message.answer('Загружать фото отелей?', reply_markup=kb_yn)
-        await FSMLowprice.next()
+        await FSMHighprice.next()
     else:
         logger.debug(f'Пользователь {message.from_user.full_name}({message.from_user.id}) - Ошибка ввода кол-ва отелей')
         await message.reply('Не верный ввод кол-ва отелей (от 1 до 10)', reply_markup=kb_foto_num)
@@ -103,7 +104,7 @@ async def step_foto(message: types.Message, state: FSMContext) -> None:
     :param state:
     :return:
     """
-    logger.info(f'lowprice Пользователь в функции load_foto!')
+    logger.info(f'highprice Пользователь в функции load_foto!')
 
     if message.text.lower() in ['да', 'нет', 'yes', 'no']:
         async with state.proxy() as data:
@@ -112,7 +113,7 @@ async def step_foto(message: types.Message, state: FSMContext) -> None:
             else:
                 data['foto'] = False
         logger.info(f'Пользователь ({message.from_user.id}) {data["city_dict"][data["city"]]} ({data["city"]}), '
-                    f'lowprice, hotel_num={data["hotel_num"]}, foto={data["foto"]}')
+                    f'highprice, hotel_num={data["hotel_num"]}, foto={data["foto"]}')
         await message.answer(f'Запрос обрататывается...', reply_markup=ReplyKeyboardRemove())
         await end_fsm(message, state)
     else:
@@ -133,7 +134,7 @@ async def end_fsm(message: types.Message, state: FSMContext) -> None:
                                                data["city"],
                                                data["hotel_num"],
                                                data["foto"],
-                                               'lowprice'
+                                               'highprice'
                                                )
         if all_hotel:
             await bot.send_message(message.from_user.id, f'Поиск завершён', reply_markup=inline_keyboard_help())
@@ -145,24 +146,24 @@ async def end_fsm(message: types.Message, state: FSMContext) -> None:
             result['hotel_num'] = len(all_hotel)
             result['city'] = data["city_dict"][data["city"]]
             result['city_id'] = data["city"]
-            request_add(message, 'lowprice', result)
+            request_add(message, 'highprice', result)
         else:
             await bot.send_message(message.from_user.id, f'В выбранном городе отелей не найдено',
                                    reply_markup=inline_keyboard_help())
     await state.finish()
 
 
-def register_lowprice_handlers(disp: Dispatcher) -> None:
+def register_highprice_handlers(disp: Dispatcher) -> None:
     """
     регистрируем хэндлеры
     :param disp:
     :return:
     """
     disp.register_message_handler(cancel_handler, Text(equals='отмена', ignore_case=True), state="*")
-    disp.register_callback_query_handler(start_fsm, text='/lowprice')
-    disp.register_message_handler(start_fsm, commands=['lowprice'])
-    disp.register_message_handler(step_city, state=FSMLowprice.step_1)
-    disp.register_message_handler(step_not_city, state=FSMLowprice.step_2)
-    disp.register_callback_query_handler(step_load_city, state=FSMLowprice.step_2)
-    disp.register_message_handler(step_hotel_num, state=FSMLowprice.step_3)
-    disp.register_message_handler(step_foto, state=FSMLowprice.step_4)
+    disp.register_callback_query_handler(start_fsm, text='/highprice')
+    disp.register_message_handler(start_fsm, commands=['highprice'])
+    disp.register_message_handler(step_city, state=FSMHighprice.step_1)
+    disp.register_message_handler(step_not_city, state=FSMHighprice.step_2)
+    disp.register_callback_query_handler(step_load_city, state=FSMHighprice.step_2)
+    disp.register_message_handler(step_hotel_num, state=FSMHighprice.step_3)
+    disp.register_message_handler(step_foto, state=FSMHighprice.step_4)

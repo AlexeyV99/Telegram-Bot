@@ -6,5 +6,10 @@ class FSMLowprice(StatesGroup):
     step_2 = State()
     step_3 = State()
     step_4 = State()
-    step_5 = State()
 
+
+class FSMHighprice(StatesGroup):
+    step_1 = State()
+    step_2 = State()
+    step_3 = State()
+    step_4 = State()

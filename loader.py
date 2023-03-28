@@ -24,7 +24,7 @@ def log_func() -> None:
                format='{time:YYYY-MM-DD HH:mm} | {level} | {message} | {file.path}:{function}',
                level='ERROR',
                rotation='10 KB')
-    # compression='zip')
+               # compression='zip')
     logger.add(sys.stdout, colorize=True, format="<green>{time:YYYY-MM-DD HH:mm}</green> | <level>{message}</level> | "
                                                  "{file}:{function}")
 

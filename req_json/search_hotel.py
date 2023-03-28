@@ -5,7 +5,7 @@ from handlers.func import show_hotel_info
 from loader import bot
 
 
-async def s_hotel(chat_id, city_id: str, hotel_num: int, foto: bool) -> dict or None:
+async def s_hotel(chat_id: str, city_id: str, hotel_num: int, foto: bool, req: str) -> dict or None:
     """
     Функция поиска отелей в выбранном городе
     :param city_id: str
@@ -48,7 +48,10 @@ async def s_hotel(chat_id, city_id: str, hotel_num: int, foto: bool) -> dict or 
     if data['data']:
         hotels_list = data["data"]["propertySearch"]['properties']
         result = {}
-        await bot.send_message(chat_id, f'Всего в выбранном городе найдено отелей: {len(hotels_list)}')
+        min_price = hotels_list[0]['price']['lead']['formatted']
+        max_price = hotels_list[-1]['price']['lead']['formatted']
+        await bot.send_message(chat_id, f'Всего в выбранном городе найдено отелей: {len(hotels_list)}\n'
+                                        f'Цены: от {min_price} до {max_price}')
         for i_hotel in hotels_list:
 
             result[i_hotel["id"]] = {
@@ -62,7 +65,14 @@ async def s_hotel(chat_id, city_id: str, hotel_num: int, foto: bool) -> dict or 
         # на тот случай, если отелей в городе меньше, чем было в запросе
         i_num_hotel = 1
         result_num = {}
-        for i_code, i_hotel in result.items():
+
+        # сортировка словаря с отелями
+        if req == 'lowprice':
+            result_sorted = dict(sorted(result.items(), key=lambda x: x[1].get('price')))
+        elif req == 'highprice':
+            result_sorted = dict(sorted(result.items(), key=lambda x: x[1].get('price'), reverse=True))
+
+        for i_code, i_hotel in result_sorted.items():
             if i_num_hotel > hotel_num:
                 return result_num
             result_num[i_code] = i_hotel
