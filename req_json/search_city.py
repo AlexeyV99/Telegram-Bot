@@ -12,8 +12,11 @@ def search_city(city: str):
     }
     data = api_request(method_endswith='locations/v3/search', params=params, method_type="GET")
 
+    if data is None:
+        logger.error('Ошибка соединения!')
+        return False
     if not data['sr']:
-        print('Нет такого города!')
+        logger.error('Нет такого города!')
         return False
     result = {i_city["essId"]["sourceId"]: i_city["regionNames"]["displayName"] for i_city in data['sr']}
     return result

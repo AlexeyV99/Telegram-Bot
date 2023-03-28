@@ -1,9 +1,11 @@
 from req_json.search_hotel_detale import hotel_detale
 from req_json.api_request import api_request
 from loguru import logger
+from handlers.func import show_hotel_info
+from loader import bot
 
 
-def s_hotel(city_id: str, hotel_num: int) -> dict or None:
+async def s_hotel(chat_id, city_id: str, hotel_num: int, foto: bool) -> dict or None:
     """
     Функция поиска отелей в выбранном городе
     :param city_id: str
@@ -46,6 +48,7 @@ def s_hotel(city_id: str, hotel_num: int) -> dict or None:
     if data['data']:
         hotels_list = data["data"]["propertySearch"]['properties']
         result = {}
+        await bot.send_message(chat_id, f'Всего в выбранном городе найдено отелей: {len(hotels_list)}')
         for i_hotel in hotels_list:
 
             result[i_hotel["id"]] = {
@@ -65,7 +68,11 @@ def s_hotel(city_id: str, hotel_num: int) -> dict or None:
             result_num[i_code] = i_hotel
             address, hotel_foto = hotel_detale(i_code)
             result_num[i_code]['address'] = address
-            result_num[i_code]['hotel_foto'] = hotel_foto
+            if foto:
+                result_num[i_code]['hotel_foto'] = hotel_foto
+            else:
+                result_num[i_code]['hotel_foto'] = []
+            await show_hotel_info(chat_id, result_num[i_code])
             i_num_hotel += 1
         return result_num
     else:

@@ -2,6 +2,7 @@
 import requests
 from config_data import config
 from loguru import logger
+import time
 
 
 def api_request(method_endswith,  # Меняется в зависимости от запроса. locations/v3/search либо properties/v2/list
@@ -28,13 +29,16 @@ def get_request(url, params):
         "X-RapidAPI-Key": config.RAPID_API_KEY,
         "X-RapidAPI-Host": "hotels4.p.rapidapi.com"
     }
+    for i in range(1, 4):
+        try:
+            response = requests.request("GET", url, headers=headers, params=params, timeout=15)
+            if response.status_code == requests.codes.ok:
+                return response.json()
+        except Exception:
+            logger.error(f'Ошибка соединения get_request #{i}')
+            time.sleep(2)
+    return None
 
-    try:
-        response = requests.request("GET", url, headers=headers, params=params, timeout=15)
-        if response.status_code == requests.codes.ok:
-            return response.json()
-    except Exception:
-        logger.error(f'Ошибка соединения get_request')
 
 
 def post_request(url, params):

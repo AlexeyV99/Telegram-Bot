@@ -22,7 +22,6 @@ def inline_keyboard_link(link: str) -> InlineKeyboardMarkup:
     return inline_kb
 
 
-
 # клавиатура команд по умолчанию (из DEFAULT_COMMANDS)
 def inline_keyboard_default() -> InlineKeyboardMarkup:
     inline_kb = InlineKeyboardMarkup()
@@ -32,13 +31,13 @@ def inline_keyboard_default() -> InlineKeyboardMarkup:
 
 
 # клавиатура истории запросов
-def inline_keyboard_history(history: dict) -> InlineKeyboardMarkup:
-    inline_kb = InlineKeyboardMarkup(row_width=2)
-    print(history)
-    for i_code, i_value in history.items():
-        text = f'{i_value["time"]} {i_value["request"]} {i_value["city"]}'
-        inline_kb.add(InlineKeyboardButton(text=text, callback_data='hist_' + str(i_code)))
-    return inline_kb
+# def inline_keyboard_history(history: dict) -> InlineKeyboardMarkup:
+#     inline_kb = InlineKeyboardMarkup(row_width=2)
+#     print(history)
+#     for i_code, i_value in history.items():
+#         text = f'{i_value["time"]} {i_value["request"]} {i_value["city"]}'
+#         inline_kb.add(InlineKeyboardButton(text=text, callback_data='hist_' + str(i_code)))
+#     return inline_kb
 
 
 # Клавиатура городов
@@ -47,8 +46,5 @@ def kb_cities(cities) -> InlineKeyboardMarkup:
     for i_code, i_city in cities.items():
         i_button = InlineKeyboardButton(i_city, callback_data=i_code)
         inline_kb.add(i_button)
+    inline_kb.add(InlineKeyboardButton(text='== ОТМЕНА ==', callback_data='cancel'))
     return inline_kb
-
-
-
-
