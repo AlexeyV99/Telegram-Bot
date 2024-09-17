@@ -5,7 +5,7 @@
 1. Клонируйте репозиторий с GitHub, создайте виртуальное окружение
 и активируйте его:
     
-$ git clone https://github.com/username/foobar.git   
+$ git clone https://github.com/AlexeyV99/Telegram-Bot      
 $ python3 -m venv env   
 $ source env/bin/activate   
 
